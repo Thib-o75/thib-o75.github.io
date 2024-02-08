@@ -34,7 +34,7 @@ function readSVGFile(file) {
                     .then((returnPreviewData) => {
                         const previewData = returnPreviewData;
                         const compressedPreview = rgbaTo16bit(previewData); //Uint8Array
-                        //create header, insert image & preview data
+                        console.log('compressedImage type: ' + typeof length + '\tcompressedPreview type: ' + typeof compressedPreview);
                         createFile(compressedImage, compressedPreview);
                     })
                     .catch((error) => {
@@ -185,7 +185,7 @@ function convertSVGToPreview(modifiedSVG) {
 }
 function rgbaTo16bit(data) {
     const pixelCount = data.width * data.height;
-    let preview16bit = new Uint8Array(2 * pixelCount);
+    let preview16bit = new Array(2 * pixelCount);
     for (let count = 0; count < pixelCount; count++) {
         const data16bit = (((data.data[count * 4] >> 3) << 11) + ((data.data[count * 4 + 1] >> 3) << 6) + ((data.data[count * 4 + 2] >> 2)));
         preview16bit[2 * count] = (data16bit >> 8) & 0xff;
@@ -252,12 +252,12 @@ function createFile(imageData, previewData) {   //imageData & previewData are Ui
     for (let i = 0; i < layerLengthByteSize; i++) {
         layerDef[24 + i] = '0x' + layerLength.slice(2 * i, 2 * i + 2);
     }
+    console.log('imageData type: ' + typeof imageData + '\tPreviewData type: ' + typeof previewData);
     //Create a new Uint8Array to merge every array together
     let fileSize = fileHeader.length + header.length + previewHeader.length + previewData.length + layerDef.length + imageData.length;
     let filePws = new Uint8Array(fileSize);
-    //let fileAsString = new Uint8Array(fileSize);
-
     filePws = fileHeader.concat(header, previewHeader, previewData, layerDef, imageData);
+    console.log('imageLength: ' + imageData.length + '\tpreviewLength: ' + previewData.length + '\tfilePwsLength: ' + filePws.length);
 
     //Download the file.
     var buff = new Uint8Array(filePws).buffer
@@ -289,7 +289,6 @@ function convertMSBtoLSB(input, length) {
     while (binaryString.length < (length * 8)) {
         binaryString = '0' + binaryString;
     }
-    console.log('layerSize binary padded: ' + binaryString);
     // Split the binary string into groups of 8 bits
     const chunks = binaryString.match(/.{1,8}/g);
     // Reverse the order of the chunks
