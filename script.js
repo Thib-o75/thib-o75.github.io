@@ -173,7 +173,7 @@ function convertSVGToPreview(modifiedSVG) {
             // Get the pixelated image data as a data URL
             const pixelatedImageData = new Image();
             pixelatedImageData.src = canvas.toDataURL('image/png');
-            document.body.appendChild(pixelatedImageData);
+            //document.body.appendChild(pixelatedImageData);
             const returnPreviewData = ctx.getImageData(0, 0, canvas.width, canvas.height);
             resolve(returnPreviewData);
         };
@@ -254,19 +254,12 @@ function createFile(imageData, previewData) {   //imageData & previewData are Ui
     //let fileAsString = new Uint8Array(fileSize);
 
     filePws = fileHeader.concat(header, previewHeader, previewData, layerDef, imageData);
-    //fileAsString = filePws.reduce(reduceFunction, "");
 
     //Download the file.
     var buff = new Uint8Array(filePws).buffer
     downloadFile([buff]);
 }
 
-function reduceFunction(previous, current) {
-    let newString = String.fromCharCode(current);
-    console.log('char ' + newString + ' = ' + newString.charCodeAt(0));
-    let valueToReturn = previous + newString;
-    return (valueToReturn);
-}
 
 //Downloader
 function downloadFile(file) {
