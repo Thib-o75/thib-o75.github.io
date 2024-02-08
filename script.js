@@ -1,5 +1,8 @@
 
 var fileName;
+var screenWidth = 2560;
+var screenHeight = 1440;
+
 document.getElementById('fileInput').addEventListener('change', handleFile);
 //Input Handler
 function handleFile(event) {
@@ -78,7 +81,7 @@ function displayModifiedSVG(modifiedSVG) {
     const newSVG = new DOMParser().parseFromString(modifiedSVG, 'image/svg+xml').documentElement;
     newSVG.id = 'output-svg';
 
-    outputContainer.appendChild(newSVG);
+    //outputContainer.appendChild(newSVG);
 }
 //Return an Image object of 2560x1440px in RGBa
 function convertSVGToImage(modifiedSVG) {
@@ -93,16 +96,20 @@ function convertSVGToImage(modifiedSVG) {
 
         img.onload = function () {
             // Set canvas dimensions based on the modified SVG size
-            canvas.width = 2560;
-            canvas.height = 1440;
+            canvas.width = 1440;
+            canvas.height = 2560;
 
             // Draw the modified SVG onto the canvas
+            ctx.translate(canvas.height / 4, canvas.width / 4);
+            ctx.rotate(Math.PI / 2);
+            ctx.translate(-canvas.height / 2 + 868, -canvas.width / 2 - 133);       //Need to find the right offsets.
             ctx.drawImage(img, 0, 0, parseFloat(img.width), parseFloat(img.height));
+
 
             // Get the pixelated image data as a data URL
             const pixelatedImageData = new Image();
             pixelatedImageData.src = canvas.toDataURL('image/png');
-            //document.body.appendChild(pixelatedImageData);
+            document.body.appendChild(pixelatedImageData);
             const returnImageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
             //Here, convert to lum then compress it and put the compressed data in resolve.
             resolve(returnImageData);
@@ -164,11 +171,11 @@ function convertSVGToPreview(modifiedSVG) {
 
         img.onload = function () {
             // Set canvas dimensions based on the modified SVG size
-            canvas.width = 168;
-            canvas.height = 224;
+            canvas.width = 224;
+            canvas.height = 168;
 
             // Draw the modified SVG onto the canvas
-            ctx.drawImage(img, 0, 0, 168, 226);
+            ctx.drawImage(img, 0, 0, 168, 224);
 
             // Get the pixelated image data as a data URL
             const pixelatedImageData = new Image();
