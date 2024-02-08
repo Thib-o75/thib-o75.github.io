@@ -257,7 +257,7 @@ function createFile(imageData, previewData) {   //imageData & previewData are Ui
     //fileAsString = filePws.reduce(reduceFunction, "");
 
     //Download the file.
-    var buff = new Buffer(filePws, 'utf8');
+    //var buff = new Buffer(filePws, 'utf8');
     downloadFile(filePws);
 }
 
