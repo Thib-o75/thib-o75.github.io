@@ -247,7 +247,11 @@ function createFile(imageData, previewData) {   //imageData & previewData are Ui
         0x00, 0x00, 0x80, 0x3f, //Layer0ExpTime             //interpreted as 0x00 0x00 0xc2 0x80 0x3f
         0x00, 0x00, 0x80, 0x3f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];//Layer0Back
     //Set the right values to the header (length of layer and exposure time)
-
+    const layerLengthByteSize = 4;
+    let layerLength = convertMSBtoLSB(imageData.length, layerLengthByteSize);
+    for (let i = 0; i < layerLengthByteSize; i++) {
+        layerDef[24 + i] = '0x' + layerLength.slice(2 * i, 2 * i + 2);
+    }
     //Create a new Uint8Array to merge every array together
     let fileSize = fileHeader.length + header.length + previewHeader.length + previewData.length + layerDef.length + imageData.length;
     let filePws = new Uint8Array(fileSize);
@@ -281,21 +285,17 @@ function downloadFile(file) {
 function convertMSBtoLSB(input, length) {
     // Convert the input to binary representation
     let binaryString = input.toString(2);
-
     // Pad the binary string with zeros to make its original length
     while (binaryString.length < (length * 8)) {
         binaryString = '0' + binaryString;
     }
-
+    console.log('layerSize binary padded: ' + binaryString);
     // Split the binary string into groups of 8 bits
     const chunks = binaryString.match(/.{1,8}/g);
-
     // Reverse the order of the chunks
     const reversedChunks = chunks.reverse();
-
     // Join the reversed chunks to get the LSB first binary string
     const lsbFirstBinaryString = reversedChunks.join('');
-
     // Convert the binary string back to a decimal number
     const lsbFirstNumber = parseInt(lsbFirstBinaryString, 2);
 
