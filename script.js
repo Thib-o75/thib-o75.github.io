@@ -61,8 +61,8 @@ function modifySVGSize(svgContent) {
     const widthAttr = parseFloat(xmlDoc.documentElement.getAttribute('width').replace('mm', ''));
     const heightAttr = parseFloat(xmlDoc.documentElement.getAttribute('height').replace('mm', ''));
 
-    const newWidth = 21.164 * widthAttr;
-    const newHeight = 21.164 * heightAttr;
+    const newWidth = 21.1637795276 * widthAttr;
+    const newHeight = 21.1637795276 * heightAttr;
 
     xmlDoc.documentElement.setAttribute('width', `${newWidth}px`);
     xmlDoc.documentElement.setAttribute('height', `${newHeight}px`);
@@ -81,7 +81,7 @@ function displayModifiedSVG(modifiedSVG) {
     const newSVG = new DOMParser().parseFromString(modifiedSVG, 'image/svg+xml').documentElement;
     newSVG.id = 'output-svg';
 
-    //outputContainer.appendChild(newSVG);
+    outputContainer.appendChild(newSVG);
 }
 //Return an Image object of 2560x1440px in RGBa
 function convertSVGToImage(modifiedSVG) {
@@ -100,16 +100,15 @@ function convertSVGToImage(modifiedSVG) {
             canvas.height = 2560;
 
             // Draw the modified SVG onto the canvas
-            ctx.translate(canvas.height / 4, canvas.width / 4);
+            ctx.translate(canvas.width, 0);
             ctx.rotate(Math.PI / 2);
-            ctx.translate(-canvas.height / 2 + 868, -canvas.width / 2 - 133);       //Need to find the right offsets.
+
+
             ctx.drawImage(img, 0, 0, parseFloat(img.width), parseFloat(img.height));
-
-
             // Get the pixelated image data as a data URL
             const pixelatedImageData = new Image();
             pixelatedImageData.src = canvas.toDataURL('image/png');
-            document.body.appendChild(pixelatedImageData);
+            //document.body.appendChild(pixelatedImageData);
             const returnImageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
             //Here, convert to lum then compress it and put the compressed data in resolve.
             resolve(returnImageData);
