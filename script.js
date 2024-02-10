@@ -3,7 +3,8 @@
 var expSlider = document.getElementById('expTimeInput');
 var expOutput = document.getElementById('expTimeOutput');
 expOutput.innerHTML = '1min 00s';
-
+var expValue;
+var expValueFloatHex;
 expSlider.oninput = function () {
     expValue = Math.round(Math.pow(60, this.value / 1000));
     let expValueHMS = expValue;
@@ -16,13 +17,14 @@ expSlider.oninput = function () {
         expValueHMS = expValueMinutes + 'min ' + ((expValueSecondes < 10) ? '0' + expValueSecondes : expValueSecondes) + 's';
     }
     expOutput.innerHTML = expValueHMS;
+
+    expValueFloatHex = convertSecToHex(expValue);
+    console.log(expValue + ' sec = ' + expValueFloatHex.toString(16) + '\n\n');
 }
 
-var expValue;
 
 
 //////////////////////////Image and file generation/////////////////
-
 
 var fileName;
 var screenWidth = 2560;
@@ -277,10 +279,17 @@ function createFile(imageData, previewData) {   //imageData & previewData are Ui
         0x00, 0x00, 0x80, 0x3f, //Layer0ExpTime
         0x00, 0x00, 0x80, 0x3f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];//Layer0Back
     //Set the right values to the header (length of layer and exposure time)
-    const layerLengthByteSize = 4;
-    let layerLength = convertMSBtoLSB(imageData.length, layerLengthByteSize);
-    for (let i = 0; i < layerLengthByteSize; i++) {
+    const intSize = 4;
+    let layerLength = convertMSBtoLSB(imageData.length, intSize);
+    for (let i = 0; i < intSize; i++) {
         layerDef[24 + i] = '0x' + layerLength.slice(2 * i, 2 * i + 2);
+    }
+    const floatSize = 4;
+    if (expValueFloatHex) {
+        for (let i = 0; i < 4; i++) {
+            layerDef[36 + i] = expValueFloatHex[i];
+            header[32 + i] = expValueFloatHex[i];
+        }
     }
     console.log('imageData type: ' + typeof imageData + '\tPreviewData type: ' + typeof previewData);
     //Create a new Uint8Array to merge every array together
@@ -293,8 +302,6 @@ function createFile(imageData, previewData) {   //imageData & previewData are Ui
     var buff = new Uint8Array(filePws).buffer
     downloadFile([buff]);
 }
-
-
 //Downloader
 function downloadFile(file) {
 
@@ -310,7 +317,6 @@ function downloadFile(file) {
     URL.revokeObjectURL(href);   //free the memory used by the URL
     a.remove();
 }
-
 //Change the endianness of a word
 function convertMSBtoLSB(input, length) {
     // Convert the input to binary representation
@@ -329,4 +335,20 @@ function convertMSBtoLSB(input, length) {
     const lsbFirstNumber = parseInt(lsbFirstBinaryString, 2);
 
     return lsbFirstNumber.toString(16);
+}
+//Convert seconds to hex
+function convertSecToHex(input) {
+    let buffer = new ArrayBuffer(4);
+    let floatArray = new Float32Array(buffer);
+    let intArray = new Uint32Array(buffer);
+
+    floatArray[0] = input;
+
+    let hexValue = intArray[0].toString(16).padStart(8, '0');
+    let binValue = hexValue.toString(16);
+    let LSBFirstValue = new Uint16Array(4);
+    for (let i = 0; i < 8; i += 2) {
+        LSBFirstValue[(6 - i) / 2] = '0x' + binValue[i] + binValue[i + 1];
+    }
+    return LSBFirstValue;
 }
