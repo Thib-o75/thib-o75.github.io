@@ -126,10 +126,9 @@ function convertSVGToImage(modifiedSVG) {
             canvas.height = 2560;
 
             // Draw the modified SVG onto the canvas
-            ctx.translate(canvas.width, 0);
+
             ctx.rotate(Math.PI / 2);
-
-
+            ctx.scale(1, -1);
             ctx.drawImage(img, 0, 0, parseFloat(img.width), parseFloat(img.height));
             // Get the pixelated image data as a data URL
             const pixelatedImageData = new Image();
